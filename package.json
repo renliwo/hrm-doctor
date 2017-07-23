@@ -13,7 +13,11 @@
     "type": "git",
     "url": "git+https://github.com/renliwo/hrm-doctor.git"
   },
-  "keywords": ["detect", "hrm", "renliwo"],
+  "keywords": [
+    "detect",
+    "hrm",
+    "renliwo"
+  ],
   "author": "zhipenglu",
   "license": "ISC",
   "bugs": {
@@ -23,6 +27,7 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "commander": "^2.11.0",
+    "js-md5": "^0.5.0",
     "request": "^2.81.0"
   }
 }

@@ -3,6 +3,7 @@
 const program = require("commander");
 const request = require("request");
 const cheerio = require("cheerio");
+const md5 = require("js-md5");
 
 // init
 program
@@ -12,8 +13,7 @@ program
   .parse(process.argv);
 
 // collect args
-var deploy_env = program.args[0];
-var env = program.env;
+var env = program.args[0];
 
 function checkArgs(env) {
   if (!env) return true;
@@ -30,12 +30,13 @@ function checkVersion(link) {
   return "1.0.1";
 }
 
-function checkLastUpdateTime(source) {
+function checkMD5(source) {
   // console.log("checking cache");
-  console.log(`lut is ${i++}`);
+  console.log(`md5 is ${md5(source)}`);
 }
 
 function analyse(env) {
+  // TODO: 根据env 动态获取 url
   request("http://localhost:8000", function(error, response, body) {
     // console.log("error:", error); // Print the error if one occurred
     // console.log("statusCode:", response && response.statusCode); // Print the response status code if a response was received
@@ -45,6 +46,7 @@ function analyse(env) {
     $("script[src]").map(function(index, ele) {
       const link = $(this).attr("src");
       if (isSource(link)) {
+        // TODO: link作为url
         request("http://localhost:8000/index.js", function(
           error,
           response,
@@ -52,7 +54,7 @@ function analyse(env) {
         ) {
           console.log(`------start checking ${env} -------`);
           checkVersion(link);
-          checkLastUpdateTime(body);
+          checkMD5(body);
         });
       }
     });
@@ -65,7 +67,7 @@ const urlMapper = {
 };
 
 if (checkArgs(env)) {
-  env ? [env] : ["daily", "pro", "pre"].map(env => analyse(env));
+  (env ? [env] : ["daily", "pro", "pre"]).map(env => analyse(env));
 } else {
   console.error(`参数不合法， 环境只支持daily，pre， pro, 并不支持${env}哦`);
 }
