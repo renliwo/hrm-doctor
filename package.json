@@ -27,7 +27,9 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "commander": "^2.11.0",
+    "isomorphic-fetch": "^2.2.1",
     "js-md5": "^0.5.0",
+    "ramda": "^0.24.1",
     "request": "^2.81.0"
   }
 }

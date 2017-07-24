@@ -4,6 +4,8 @@ const program = require("commander");
 const request = require("request");
 const cheerio = require("cheerio");
 const md5 = require("js-md5");
+const R = require("ramda");
+const fetch = require("isomorphic-fetch");
 
 // init
 program
@@ -21,50 +23,77 @@ function checkArgs(env) {
 }
 
 function isSource(link) {
-  return link.match(/index/);
+  return link.match(/react-hrm-h5/);
 }
-let i = 0;
+
 function checkVersion(link) {
-  // console.log("checking version");
-  console.log(`version is ${i++}`);
-  return "1.0.1";
+  console.log(`version is ${link.match(/\d\.\d\.\d/)[0]}`);
 }
 
 function checkMD5(source) {
   // console.log("checking cache");
   console.log(`md5 is ${md5(source)}`);
 }
+function showRefresh(fresh) {
+  return console.info(`当前环境代码${fresh ? "" : "不"}是最新的`);
+}
+
+function compareMD5(files) {
+  if (!files.length) return;
+  if (!files[0] || !files[1]) return;
+  return files[0] === files[1];
+}
+
+function getJSFile(url) {
+  return fetch(url).then(res => res.text());
+}
+
+function getUrlByEnv(env) {
+  return {
+    daily:
+      "http://daily-hrmregister.dingtalk.com:7001/hrmregister/mobile/index?corpId=123455#",
+    pre:
+      "https://pre-hrmregister.dingtalk.com/hrmregister/mobile/index?corpId=123455#/"
+  }[env];
+}
+
+async function checkFresh(repo, cdn, cb) {
+  const files = await Promise.all(R.map(getJSFile)([repo, cdn]));
+  cb();
+  return R.pipe(compareMD5, showRefresh)(files);
+}
 
 function analyse(env) {
-  // TODO: 根据env 动态获取 url
-  request("http://localhost:8000", function(error, response, body) {
-    // console.log("error:", error); // Print the error if one occurred
-    // console.log("statusCode:", response && response.statusCode); // Print the response status code if a response was received
-    // console.log("body:", body); // Print the HTML for the Google homepage.
+  if (env === "pro") {
+    console.info("对不起，暂时不支持生产环境\n---- skiping pro");
+    return -1;
+  }
+  request(getUrlByEnv(env), function(error, response, body) {
+    if (error) {
+      console.error("谁又在发版？");
+      return -1;
+    }
     const $ = cheerio.load(body);
 
     $("script[src]").map(function(index, ele) {
       const link = $(this).attr("src");
+
       if (isSource(link)) {
-        // TODO: link作为url
-        request("http://localhost:8000/index.js", function(
-          error,
-          response,
-          body
-        ) {
-          console.log(`------start checking ${env} -------`);
-          checkVersion(link);
-          checkMD5(body);
+        request(link, function(error, response, body) {
+          checkFresh(
+            "http://gitlab.alibaba-inc.com/dingding/react-hrm-h5/blob/daily/0.4.1/dist/index.js",
+            link,
+            () => {
+              console.log(`------start checking ${env} -------`);
+              checkVersion(link);
+              checkMD5(body);
+            }
+          );
         });
       }
     });
   });
 }
-
-const urlMapper = {
-  daily:
-    "http://daily-hrmregister.dingtalk.com:7001/hrmregister/hrm/index?corpId=123455#"
-};
 
 if (checkArgs(env)) {
   (env ? [env] : ["daily", "pro", "pre"]).map(env => analyse(env));
