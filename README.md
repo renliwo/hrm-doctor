@@ -9,3 +9,6 @@
 npm i hrm-doctor -g
 hrm-doctor --help
 ```
+# TODO
+目前检测代码是否最新不可用。 原因在于gitlab有验证，因此无法获得gitlab上的源码。
+也就没有办法比较仓库的代码和cdn代码是否一致了。

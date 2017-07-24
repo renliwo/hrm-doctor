@@ -27,15 +27,17 @@ function isSource(link) {
 }
 
 function checkVersion(link) {
-  console.log(`version is ${link.match(/\d\.\d\.\d/)[0]}`);
+  const v = link.match(/\d\.\d\.\d/)[0];
+  console.log(`当前版本号为${v}`);
+  return v;
 }
 
 function checkMD5(source) {
   // console.log("checking cache");
-  console.log(`md5 is ${md5(source)}`);
+  console.log(`当前代码MD5值${md5(source)}`);
 }
 function showRefresh(fresh) {
-  return console.info(`当前环境代码${fresh ? "" : "不"}是最新的`);
+  return console.info(`代码${fresh ? "" : "不"}是最新的`);
 }
 
 function compareMD5(files) {
@@ -59,8 +61,8 @@ function getUrlByEnv(env) {
 
 async function checkFresh(repo, cdn, cb) {
   const files = await Promise.all(R.map(getJSFile)([repo, cdn]));
-  cb();
-  return R.pipe(compareMD5, showRefresh)(files);
+
+  return R.pipe(cb, compareMD5, showRefresh)(files);
 }
 
 function analyse(env) {
@@ -80,13 +82,17 @@ function analyse(env) {
 
       if (isSource(link)) {
         request(link, function(error, response, body) {
+          // 这个功能不生效，原因是gitlab 不是谁都可以访问到的，需要身份验证s
           checkFresh(
-            "http://gitlab.alibaba-inc.com/dingding/react-hrm-h5/blob/daily/0.4.1/dist/index.js",
+            `http://gitlab.alibaba-inc.com/dingding/react-hrm-h5/raw/daily/${link.match(
+              /\d\.\d\.\d/
+            )[0]}/dist/index.js`, // 仓库文件地址
             link,
-            () => {
+            payload => {
               console.log(`------start checking ${env} -------`);
               checkVersion(link);
               checkMD5(body);
+              return payload;
             }
           );
         });
