@@ -1,7 +1,7 @@
 {
   "name": "hrm-doctor",
-  "version": "0.0.1",
-  "description": "专门为钉钉人力窝项目打造的一键检测运行环境，帮助定位问题的命令行工具。 # Why 背景： 目前测试向我反馈问题，都是直接说“xxxx有问题，你定位下，看是什么问题” 或者“xxx有问题，你改下”。 而作为程序员，当然是要有足够的信息才能找到问题。所以我会追问“你用的版本多少， 他会说“ 我不知道你们的版本是啥意思”。这个时候我就要问后端“现在版本是多少”。 如果版本不对，问题解决。 如果版本正确，我还要问“你的是什么环境，日常，预发，还是生产”。  我还会问“你有没有清理缓存啊？”另外我还想知道后端给我的数据是否正常。 如果全部正常，那么我就可以让它们代理到我电脑进行调试解决问题了。   而前面一系列往往能解决80% 问题。",
+  "version": "0.0.2",
+  "description": "专门为钉钉人力窝项目打造的一键检测运行环境，帮助定位问题的命令行工具。",
   "main": "index.js",
   "bin": {
     "hrm-doctor": "doctor.js"
@@ -13,11 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/renliwo/hrm-doctor.git"
   },
-  "keywords": [
-    "detect",
-    "hrm",
-    "renliwo"
-  ],
+  "keywords": ["detect", "hrm", "renliwo"],
   "author": "zhipenglu",
   "license": "ISC",
   "bugs": {
